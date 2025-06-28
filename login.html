@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>로그인</title>
+  <style>
+    body { font-family: sans-serif; padding: 40px; background-color: #f2f2f2; }
+    .box { max-width: 400px; margin: auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input, button { display: block; width: 100%; padding: 10px; margin: 10px 0; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; }
+    .msg { color: red; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>🔐 로그인</h2>
+    <input type="text" id="id" placeholder="아이디" />
+    <input type="password" id="pw" placeholder="비밀번호" />
+    <button onclick="login()">로그인</button>
+    <p class="msg" id="msg"></p>
+  </div>
+
+  <script>
+    function login() {
+      const id = document.getElementById("id").value.trim();
+      const pw = document.getElementById("pw").value.trim();
+      const msg = document.getElementById("msg");
+
+      if (!id || !pw) {
+        msg.textContent = "아이디와 비밀번호를 입력해주세요.";
+        return;
+      }
+
+      fetch("http://localhost:3000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id, pw })
+      })
+      .then(res => {
+        if (!res.ok) throw new Error("❌ 로그인 실패");
+        return res.json();
+      })
+      .then(user => {
+        localStorage.setItem("loginUser", JSON.stringify(user));
+        const users = JSON.parse(localStorage.getItem("users") || "[]");
+        const index = users.findIndex(u => u.id === user.id);
+        if (index >= 0) users[index] = user;
+        else users.push(user);
+        localStorage.setItem("users", JSON.stringify(users));
+        window.location.href = "index.html";
+      })
+      .catch(err => {
+        msg.textContent = err.message;
+      });
+    }
+  </script>
+</body>
+</html>
