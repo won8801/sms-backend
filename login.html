@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>로그인</title>
+  <style>
+    body { font-family: sans-serif; background: #f0f0f0; padding: 2rem; text-align: center; }
+    .box { max-width: 400px; margin: auto; background: white; padding: 2rem; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+    input, button { width: 100%; margin: 0.5rem 0; padding: 0.7rem; font-size: 1rem; border-radius: 5px; border: 1px solid #ccc; }
+    button { background: #007bff; color: white; border: none; }
+    #error { color: red; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h2>🔐 로그인</h2>
+  <div class="box">
+    <input type="text" id="id" placeholder="ID">
+    <input type="password" id="pw" placeholder="비밀번호">
+    <button onclick="login()">로그인</button>
+    <div id="error"></div>
+  </div>
+
+  <script>
+    function login() {
+      const id = document.getElementById("id").value.trim();
+      const pw = document.getElementById("pw").value.trim();
+      const users = JSON.parse(localStorage.getItem("users") || "[]");
+      const user = users.find(u => u.id === id && u.pw === pw);
+
+      if (!user) {
+        document.getElementById("error").textContent = "ID 또는 비밀번호가 올바르지 않습니다.";
+        return;
+      }
+
+      localStorage.setItem("loginUser", JSON.stringify(user));
+      location.href = user.role === "admin" ? "admin.html" : "index.html";
+    }
+
+    // 초기 관리자 계정 자동 생성
+    window.onload = () => {
+      if (!localStorage.getItem("users")) {
+        const defaultUsers = [
+          { id: "admin", pw: "admin123", role: "admin", limit: 9999 }
+        ];
+        localStorage.setItem("users", JSON.stringify(defaultUsers));
+      }
+    };
+  </script>
+</body>
+</html>
